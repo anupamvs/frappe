@@ -637,6 +637,9 @@ frappe.provide("frappe.views");
 	};
 
 	function prepare_card(card, state, doc) {
+		console.log(card);
+		console.log(state);
+		console.log(doc);
 		var assigned_list = card._assign ?
 			JSON.parse(card._assign) : [];
 		var comment_count = card._comment_count || 0;
@@ -652,7 +655,7 @@ frappe.provide("frappe.views");
 			column: card[state.board.field_name],
 			assigned_list: card.assigned_list || assigned_list,
 			comment_count: card.comment_count || comment_count,
-			color: card.color || null,
+			color: card.color || '#FF0000',
 			doc: doc
 		};
 	}
