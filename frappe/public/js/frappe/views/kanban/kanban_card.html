@@ -4,7 +4,7 @@
 			<div class="kanban-card-title">
 				{{ title }}
 			</div>
-			{% for(var i=0, l=card_fields.length-1; i<l; i++) { %}
+			{% for(var i=0; i<card_fields.length; i++) { %}
 				<div class="kanban-card-title">{%= card_fields[i].label %} : {%= card_fields[i].value %}</div>
 			{% } %}
 			<div class="kanban-card-meta">

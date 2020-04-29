@@ -10,12 +10,16 @@
   "kanban_board_name",
   "reference_doctype",
   "field_name",
+  "column_break_4",
+  "show_total",
+  "total_field",
+  "total_field_label",
+  "card_fields_section",
+  "card_fields",
   "section_break_3",
   "columns",
   "filters",
-  "private",
-  "card_fields_section",
-  "card_fields"
+  "private"
  ],
  "fields": [
   {
@@ -72,10 +76,35 @@
    "fieldname": "card_fields",
    "fieldtype": "Table",
    "options": "Kanban Board Card Field"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break",
+   "label": "Total"
+  },
+  {
+   "depends_on": "eval:doc.show_total === 1",
+   "fieldname": "total_field",
+   "fieldtype": "Select",
+   "label": "Total Field",
+   "mandatory_depends_on": "eval:doc.show_total === 1"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_total",
+   "fieldtype": "Check",
+   "label": "Show Total On Top"
+  },
+  {
+   "depends_on": "eval:doc.show_total === 1",
+   "fieldname": "total_field_label",
+   "fieldtype": "Data",
+   "label": "Total Field Label",
+   "mandatory_depends_on": "eval:doc.show_total === 1"
   }
  ],
  "links": [],
- "modified": "2020-04-16 17:36:35.718324",
+ "modified": "2020-04-30 18:09:58.009500",
  "modified_by": "Administrator",
  "module": "Desk",
  "name": "Kanban Board",

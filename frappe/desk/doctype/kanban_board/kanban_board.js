@@ -29,6 +29,27 @@ frappe.ui.form.on('Kanban Board', {
 			frm.get_field('field_name').refresh();
 		});
 		frm.trigger("get_doctype_fields");
+
+	},
+	show_total: function(frm) {
+		if(!frm.doc.show_total) return;
+		
+		let fields_type = ['Currency', 'Percentage'];
+		frappe.model.with_doctype(frm.doc.reference_doctype, function() {
+			var options = $.map(frappe.get_meta(frm.doc.reference_doctype).fields,
+				function(d) {
+					if(d.fieldname && fields_type.includes(d.fieldtype) &&
+						frappe.model.no_value_type.indexOf(d.fieldtype)===-1) {
+						return d.fieldname;
+					}
+					return null;
+				});
+			frm.set_df_property('total_field', 'options', options);
+			frm.get_field('total_field').refresh();
+		});
+	},
+	total_field: function(frm) {
+		if(!frm.doc.show_total_on_top) return;
 	},
 	field_name: function(frm) {
 		var field = frappe.meta.get_field(frm.doc.reference_doctype, frm.doc.field_name);

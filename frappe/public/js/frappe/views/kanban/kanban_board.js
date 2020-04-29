@@ -1,5 +1,4 @@
 frappe.provide("frappe.views");
-
 (function() {
 
 	var method_prefix = 'frappe.desk.doctype.kanban_board.kanban_board.';
@@ -21,7 +20,6 @@ frappe.provide("frappe.views");
 				updater.set({
 					empty_state: true
 				});
-
 				var board = opts.board;
 				var card_meta = opts.card_meta;
 				opts.card_meta = card_meta;
@@ -29,8 +27,7 @@ frappe.provide("frappe.views");
 				var cards = opts.cards.map(function(card) {
 					return prepare_card(card, opts);
 				});
-				var columns = prepare_columns(board.columns);
-
+				var columns = prepare_columns(board);
 				updater.set({
 					doctype: opts.doctype,
 					board: board,
@@ -82,6 +79,7 @@ frappe.provide("frappe.views");
 						return update_kanban_board(board.name, col.title, action);
 					}).then(function(r) {
 						var cols = r.message;
+						// change needed
 						updater.set({
 							columns: prepare_columns(cols)
 						});
@@ -181,7 +179,7 @@ frappe.provide("frappe.views");
 						var board = r.message[0];
 						var updated_cards = r.message[1];
 						var cards = update_cards_column(updated_cards);
-						var columns = prepare_columns(board.columns);
+						var columns = prepare_columns(board);
 						updater.set({
 							cards: cards,
 							columns: columns
@@ -204,7 +202,7 @@ frappe.provide("frappe.views");
 					}
 				}).then(function(r) {
 					var board = r.message;
-					var columns = prepare_columns(board.columns);
+					var columns = prepare_columns(board);
 					updater.set({
 						columns: columns
 					});
@@ -220,7 +218,7 @@ frappe.provide("frappe.views");
 					}
 				}).then(function(r) {
 					var board = r.message;
-					var columns = prepare_columns(board.columns);
+					var columns = prepare_columns(board);
 					updater.set({
 						columns: columns
 					});
@@ -406,26 +404,54 @@ frappe.provide("frappe.views");
 		}
 
 		function make_dom() {
+			kanban_column = {
+				title: column.title,
+				doctype: store.getState().doctype,
+				indicator: column.indicator
+			};
 			self.$kanban_column = $(frappe.render_template(
-				'kanban_column', {
-					title: column.title,
-					doctype: store.getState().doctype,
-					indicator: column.indicator
-				})).appendTo(wrapper);
+				'kanban_column', kanban_column)).appendTo(wrapper);
 			self.$kanban_cards = self.$kanban_column.find('.kanban-cards');
+			self.$kanban_total = self.$kanban_column.find('.kanban-total');
+		}
+
+		function render_total_card(label, total){
+			html = `<div class="kanban-card-wrapper"">	
+						<div class="kanban-card content">
+							<div class="kanban-card-title">
+								${label} : <b>${total}</b>
+							</div>
+						</div>
+				</div>`;
+			self.$kanban_total.html(html);
 		}
 
 		function make_cards() {
 			self.$kanban_cards.empty();
+			self.$kanban_total.empty();
 			var cards = store.getState().cards;
 			filtered_cards = get_cards_for_column(cards, column);
+			// console.log(column);
+			// console.log(filtered_cards);
 			var filtered_cards_names = filtered_cards.map(card => card.name);
-
 			var order = column.order;
+			let total=0;
 			if(order) {
 				order = JSON.parse(order);
 				order.forEach(function(name) {
 					if (!filtered_cards_names.includes(name)) return;
+					if(column.show_total){
+						let c = cards.find(obj =>{
+							return obj.name === name
+						});
+						// console.log(c);
+						let amt = c.card_fields.find(obj =>{
+							return obj.field_name === column.total_field
+						})
+						if (!isNaN(amt.value)){
+							total += amt.value;
+						}
+					}
 					frappe.views.KanbanBoardCard(get_card(name), self.$kanban_cards);
 				});
 				// new cards
@@ -439,6 +465,8 @@ frappe.provide("frappe.views");
 					frappe.views.KanbanBoardCard(card, self.$kanban_cards);
 				});
 			}
+			render_total_card(column.total_field_label,total);
+			//console.log(total);
 		}
 
 		function setup_sortable() {
@@ -465,40 +493,8 @@ frappe.provide("frappe.views");
 		function bind_add_card() {
 			var $wrapper = self.$kanban_column;
 			var $btn_add = $wrapper.find('.add-card');
-			var $new_card_area = $wrapper.find('.new-card-area');
-			var $textarea = $new_card_area.find('textarea');
-
-			//Add card button
-			$new_card_area.hide();
 			$btn_add.on('click', function() {
-				$btn_add.hide();
-				$new_card_area.show();
-				$textarea.focus();
-			});
-
-			//save on enter
-			$new_card_area.keydown(function(e) {
-				if (e.which == 13) {
-					e.preventDefault();
-					if (!frappe.request.ajax_count) {
-						// not already working -- double entry
-						e.preventDefault();
-						var card_title = $textarea.val();
-						$new_card_area.hide();
-						$textarea.val('');
-						fluxify.doAction('add_card', card_title, column.title)
-							.then(() => {
-								$btn_add.show();
-							});
-					}
-				}
-			});
-
-			// on textarea blur
-			$textarea.on("blur", function() {
-				$(this).val('');
-				$btn_add.show();
-				$new_card_area.hide();
+				frappe.new_doc(store.getState().doctype);
 			});
 		}
 
@@ -546,8 +542,10 @@ frappe.provide("frappe.views");
 			var opts = {
 				name: card.name,
 				title: remove_img_tags(card.title),
+				card_fields: card.card_fields,
 				disable_click: card._disable_click ? 'disable-click' : ''
 			};
+			// console.log(opts);
 			self.$card = $(frappe.render_template('kanban_card', opts))
 				.appendTo(wrapper);
 		}
@@ -637,9 +635,6 @@ frappe.provide("frappe.views");
 	};
 
 	function prepare_card(card, state, doc) {
-		console.log(card);
-		console.log(state);
-		console.log(doc);
 		var assigned_list = card._assign ?
 			JSON.parse(card._assign) : [];
 		var comment_count = card._comment_count || 0;
@@ -647,27 +642,45 @@ frappe.provide("frappe.views");
 		if (doc) {
 			card = Object.assign({}, card, doc);
 		}
-
+		let card_fields = [];
+		state.board.card_fields.forEach(
+			function(d){
+				let crd = new Object();
+				crd.label = d.label;
+				crd.value = card[d.field_name];
+				crd.field_name = d.field_name;
+				card_fields.push(crd);
+			}
+		);
+		// console.log(card);
 		return {
 			doctype: state.doctype,
 			name: card.name,
 			title: card[state.card_meta.title_field.fieldname],
 			column: card[state.board.field_name],
+			card_fields: card_fields,
+			card: card,
 			assigned_list: card.assigned_list || assigned_list,
 			comment_count: card.comment_count || comment_count,
-			color: card.color || '#FF0000',
+			color: card.color || null,
 			doc: doc
 		};
 	}
 
-	function prepare_columns(columns) {
-		return columns.map(function(col) {
-			return {
+	function prepare_columns(board) {
+		return board.columns.map(function(col) {
+			let column = {
 				title: col.column_name,
 				status: col.status,
 				order: col.order,
 				indicator: col.indicator || 'darkgrey'
 			};
+			if (board.show_total) {
+				column.show_total = board.show_total;
+				column.total_field = board.total_field;
+				column.total_field_label = board.total_field_label;
+			}
+			return column;
 		});
 	}
 
