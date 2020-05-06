@@ -27,6 +27,7 @@ frappe.provide("frappe.views");
 				var cards = opts.cards.map(function(card) {
 					return prepare_card(card, opts);
 				});
+				console.log(cards);
 				var columns = prepare_columns(board);
 				updater.set({
 					doctype: opts.doctype,
@@ -465,7 +466,9 @@ frappe.provide("frappe.views");
 					frappe.views.KanbanBoardCard(card, self.$kanban_cards);
 				});
 			}
-			render_total_card(column.total_field_label,total);
+			if(column.show_total){
+				render_total_card(column.total_field_label,total);
+			}
 			//console.log(total);
 		}
 
@@ -652,6 +655,7 @@ frappe.provide("frappe.views");
 				card_fields.push(crd);
 			}
 		);
+		// console.log(card_fields);
 		// console.log(card);
 		return {
 			doctype: state.doctype,

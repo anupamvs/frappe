@@ -79,32 +79,29 @@
   },
   {
    "fieldname": "column_break_4",
-   "fieldtype": "Column Break",
-   "label": "Total"
-  },
-  {
-   "depends_on": "eval:doc.show_total === 1",
-   "fieldname": "total_field",
-   "fieldtype": "Select",
-   "label": "Total Field",
-   "mandatory_depends_on": "eval:doc.show_total === 1"
+   "fieldtype": "Column Break"
   },
   {
    "default": "0",
    "fieldname": "show_total",
    "fieldtype": "Check",
-   "label": "Show Total On Top"
+   "label": "Show Total"
+  },
+  {
+   "depends_on": "eval:doc.show_total === 1",
+   "fieldname": "total_field",
+   "fieldtype": "Select",
+   "label": "Total Field"
   },
   {
    "depends_on": "eval:doc.show_total === 1",
    "fieldname": "total_field_label",
    "fieldtype": "Data",
-   "label": "Total Field Label",
-   "mandatory_depends_on": "eval:doc.show_total === 1"
+   "label": "Total Amount"
   }
  ],
  "links": [],
- "modified": "2020-04-30 18:09:58.009500",
+ "modified": "2020-05-06 02:29:45.130001",
  "modified_by": "Administrator",
  "module": "Desk",
  "name": "Kanban Board",
