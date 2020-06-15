@@ -20,6 +20,7 @@ frappe.provide("frappe.views");
 				updater.set({
 					empty_state: true
 				});
+				// console.log(opts);
 				var board = opts.board;
 				var card_meta = opts.card_meta;
 				opts.card_meta = card_meta;
@@ -27,7 +28,7 @@ frappe.provide("frappe.views");
 				var cards = opts.cards.map(function(card) {
 					return prepare_card(card, opts);
 				});
-				console.log(cards);
+				// console.log(cards);
 				var columns = prepare_columns(board);
 				updater.set({
 					doctype: opts.doctype,
@@ -420,7 +421,10 @@ frappe.provide("frappe.views");
 			html = `<div class="kanban-card-wrapper"">	
 						<div class="kanban-card content">
 							<div class="kanban-card-title">
-								${label} : <b>${total}</b>
+								${label}
+							</div>
+							<div class="total">
+								<b>${total}</b>
 							</div>
 						</div>
 				</div>`;
@@ -438,6 +442,7 @@ frappe.provide("frappe.views");
 			var order = column.order;
 			let total=0;
 			if(order) {
+				// console.log("Cool");
 				order = JSON.parse(order);
 				order.forEach(function(name) {
 					if (!filtered_cards_names.includes(name)) return;
@@ -449,7 +454,9 @@ frappe.provide("frappe.views");
 						let amt = c.card_fields.find(obj =>{
 							return obj.field_name === column.total_field
 						})
-						if (!isNaN(amt.value)){
+						console.log(column);
+						if (amt.value > 0){
+							// console.log(amt.value);
 							total += amt.value;
 						}
 					}
@@ -458,11 +465,17 @@ frappe.provide("frappe.views");
 				// new cards
 				filtered_cards.forEach(function(card) {
 					if(order.indexOf(card.name) === -1) {
+						if(column.show_total){
+							total += card.card[column.total_field]
+						}
 						frappe.views.KanbanBoardCard(card, self.$kanban_cards);
 					}
 				});
 			} else {
 				filtered_cards.map(function(card) {
+					if(column.show_total){
+						total += card.card[column.total_field]
+					}
 					frappe.views.KanbanBoardCard(card, self.$kanban_cards);
 				});
 			}
@@ -546,6 +559,7 @@ frappe.provide("frappe.views");
 				name: card.name,
 				title: remove_img_tags(card.title),
 				card_fields: card.card_fields,
+				show_label: store.getState().board.show_label,
 				disable_click: card._disable_click ? 'disable-click' : ''
 			};
 			// console.log(opts);

@@ -15,6 +15,7 @@
   "total_field",
   "total_field_label",
   "card_fields_section",
+  "show_label",
   "card_fields",
   "section_break_3",
   "columns",
@@ -27,6 +28,8 @@
    "fieldtype": "Data",
    "label": "Kanban Board Name",
    "reqd": 1,
+   "show_days": 1,
+   "show_seconds": 1,
    "unique": 1
   },
   {
@@ -35,73 +38,105 @@
    "in_list_view": 1,
    "label": "Reference Document Type",
    "options": "DocType",
-   "reqd": 1
+   "reqd": 1,
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "field_name",
    "fieldtype": "Select",
    "label": "Field Name",
-   "reqd": 1
+   "reqd": 1,
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "section_break_3",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "columns",
    "fieldtype": "Table",
    "label": "Columns",
-   "options": "Kanban Board Column"
+   "options": "Kanban Board Column",
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "filters",
    "fieldtype": "Text",
    "hidden": 1,
    "label": "Filters",
-   "read_only": 1
+   "read_only": 1,
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "default": "0",
    "fieldname": "private",
    "fieldtype": "Check",
    "label": "Private",
-   "read_only": 1
+   "read_only": 1,
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "card_fields_section",
    "fieldtype": "Section Break",
-   "label": "Card Fields"
+   "label": "Card Fields",
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "card_fields",
    "fieldtype": "Table",
-   "options": "Kanban Board Card Field"
+   "options": "Kanban Board Card Field",
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "default": "0",
    "fieldname": "show_total",
    "fieldtype": "Check",
-   "label": "Show Total"
+   "label": "Show Total",
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "depends_on": "eval:doc.show_total === 1",
    "fieldname": "total_field",
    "fieldtype": "Select",
-   "label": "Total Field"
+   "label": "Total Field",
+   "show_days": 1,
+   "show_seconds": 1
   },
   {
    "depends_on": "eval:doc.show_total === 1",
    "fieldname": "total_field_label",
    "fieldtype": "Data",
-   "label": "Total Amount"
+   "label": "Total Amount",
+   "show_days": 1,
+   "show_seconds": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "show_label",
+   "fieldtype": "Check",
+   "label": "Show Label",
+   "show_days": 1,
+   "show_seconds": 1
   }
  ],
  "links": [],
- "modified": "2020-05-06 02:29:45.130001",
+ "modified": "2020-06-02 10:32:16.625656",
  "modified_by": "Administrator",
  "module": "Desk",
  "name": "Kanban Board",
